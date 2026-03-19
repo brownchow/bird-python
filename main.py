@@ -14,6 +14,7 @@ from typing import Optional
 
 from fastapi import FastAPI, File, UploadFile, Form, HTTPException
 from fastapi.responses import JSONResponse
+from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 
 # 创建 FastAPI 应用实例
@@ -21,6 +22,15 @@ app = FastAPI(
     title="BirdNET 鸟类识别 API",
     description="基于 BirdNET-Analyzer 的鸟类叫声识别服务",
     version="1.0.0"
+)
+
+# 添加 CORS 中间件，允许跨域请求
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # 允许所有来源
+    allow_credentials=True,
+    allow_methods=["*"],  # 允许所有方法
+    allow_headers=["*"],  # 允许所有头
 )
 
 # 配置常量
