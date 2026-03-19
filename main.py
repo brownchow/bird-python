@@ -304,12 +304,13 @@ async def analyze_audio(
         raise HTTPException(status_code=500, detail=f"分析失败: {str(e)}")
 
     finally:
-        # 清理临时音频文件
-        if audio_path.exists():
-            try:
-                audio_path.unlink()
-            except Exception:
-                pass
+        # 默认保留音频文件用于调试，如需清理可启用
+        # if audio_path.exists():
+        #     try:
+        #         audio_path.unlink()
+        #     except Exception:
+        #         pass
+        pass
 
 
 if __name__ == "__main__":
