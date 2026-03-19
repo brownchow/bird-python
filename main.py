@@ -190,27 +190,27 @@ def run_birdnet_analysis(
 @app.post("/analyze", response_model=AnalysisResponse)
 async def analyze_audio(
     file: UploadFile = File(..., description="音频文件 (支持 wav, mp3, flac 等格式)"),
-    latitude: float = Form(..., description="纬度 (-90 到 90)"),
-    longitude: float = Form(..., description="经度 (-180 到 180)"),
-    week: Optional[int] = Form(None, description="周数 (1-48), 不提供则自动计算当前周"),
-    min_conf: float = Form(0.25, description="最小置信度阈值 (0.0-1.0)")
+    latitude: Optional[float] = Form(-1, description="纬度 (-90 到 90), 默认 -1 忽略"),
+    longitude: Optional[float] = Form(-1, description="经度 (-180 到 180), 默认 -1 忽略"),
+    week: Optional[int] = Form(None, description="周数 (1-48), 默认当前周"),
+    min_conf: Optional[float] = Form(0.25, description="最小置信度 (0.0-1.0), 默认 0.25")
 ):
     """
     分析音频文件，识别鸟类叫声
 
-    - **file**: 音频文件
-    - **latitude**: 录音地点纬度
-    - **longitude**: 录音地点经度
-    - **week**: 录音时间周数 (1-48), 默认为当前周
-    - **min_conf**: 最小置信度阈值，默认为 0.25
+    - **file**: 音频文件 (必填)
+    - **latitude**: 纬度 (可选, 默认 -1 忽略位置筛选)
+    - **longitude**: 经度 (可选, 默认 -1 忽略位置筛选)
+    - **week**: 周数 (可选, 默认当前周)
+    - **min_conf**: 最小置信度 (可选, 默认 0.25)
 
     Returns:
         JSON 格式的识别结果
     """
-    # 验证经纬度
-    if not -90 <= latitude <= 90:
+    # 验证经纬度 (如果是有效值)
+    if latitude is not None and latitude != -1 and not -90 <= latitude <= 90:
         raise HTTPException(status_code=400, detail="纬度必须在 -90 到 90 之间")
-    if not -180 <= longitude <= 180:
+    if longitude is not None and longitude != -1 and not -180 <= longitude <= 180:
         raise HTTPException(status_code=400, detail="经度必须在 -180 到 180 之间")
 
     # 验证置信度
@@ -251,12 +251,17 @@ async def analyze_audio(
 
     # 运行 BirdNET 分析
     try:
+        # 确保参数有默认值
+        lat_val = latitude if latitude is not None else -1
+        lon_val = longitude if longitude is not None else -1
+        conf_val = min_conf if min_conf is not None else 0.25
+
         detections = run_birdnet_analysis(
             audio_path=str(audio_path),
-            lat=latitude,
-            lon=longitude,
+            lat=lat_val,
+            lon=lon_val,
             week=analysis_week,
-            min_conf=min_conf
+            min_conf=conf_val
         )
 
         return AnalysisResponse(
@@ -264,8 +269,8 @@ async def analyze_audio(
             message="分析完成",
             detections=detections,
             location={
-                "latitude": latitude,
-                "longitude": longitude,
+                "latitude": lat_val,
+                "longitude": lon_val,
                 "week": analysis_week
             },
             audio_file=safe_filename

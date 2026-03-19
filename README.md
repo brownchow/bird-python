@@ -52,15 +52,21 @@ curl http://localhost:8000/health
 **端点:** `POST /analyze`
 
 **参数 (multipart/form-data):**
-| 参数 | 类型 | 必填 | 说明 |
-|------|------|------|------|
-| file | File | 是 | 音频文件 (wav, mp3, flac, ogg, m4a, wma, aac) |
-| latitude | float | 是 | 纬度 (-90 到 90) |
-| longitude | float | 是 | 经度 (-180 到 180) |
-| week | int | 否 | 周数 (1-48), 默认为当前周 |
-| min_conf | float | 否 | 最小置信度 (0.0-1.0, 默认 0.25) |
+| 参数 | 类型 | 必填 | 默认值 | 说明 |
+|------|------|------|--------|------|
+| file | File | 是 | - | 音频文件 (wav, mp3, flac, ogg, m4a, wma, aac) |
+| latitude | float | 否 | -1 | 纬度 (-90 到 90), -1 忽略位置筛选 |
+| longitude | float | 否 | -1 | 经度 (-180 到 180), -1 忽略位置筛选 |
+| week | int | 否 | 当前周 | 周数 (1-48) |
+| min_conf | float | 否 | 0.25 | 最小置信度 (0.0-1.0) |
 
-**示例 (curl):**
+**简化调用 (只需音频文件):**
+```bash
+curl -X POST http://localhost:8000/analyze \
+  -F "file=@/path/to/audio.wav"
+```
+
+**完整参数调用:**
 ```bash
 curl -X POST http://localhost:8000/analyze \
   -F "file=@/path/to/audio.wav" \
