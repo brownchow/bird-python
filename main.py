@@ -243,7 +243,7 @@ async def analyze_audio(
         analysis_week = get_current_week()
 
     # 验证文件类型
-    allowed_extensions = {'.wav', '.mp3', '.flac', '.ogg', '.m4a', '.wma', '.aac'}
+    allowed_extensions = {'.wav', '.mp3', '.flac', '.ogg', '.m4a', '.wma', '.aac', '.webm'}
     file_ext = Path(file.filename).suffix.lower()
     if file_ext not in allowed_extensions:
             raise HTTPException(
