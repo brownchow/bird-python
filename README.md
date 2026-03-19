@@ -63,18 +63,23 @@ curl http://localhost:8000/health
 
 **简化调用 (只需音频文件):**
 ```bash
-curl -X POST http://localhost:8000/analyze \
-  -F "file=@/path/to/audio.wav"
+curl -s -X POST http://localhost:8000/analyze -F "file=@/path/to/audio.wav"
 ```
 
 **完整参数调用:**
 ```bash
-curl -X POST http://localhost:8000/analyze \
+curl -s -X POST http://localhost:8000/analyze \
   -F "file=@/path/to/audio.wav" \
   -F "latitude=42.5" \
   -F "longitude=-76.45" \
   -F "week=12" \
   -F "min_conf=0.25"
+```
+
+**格式化输出 (使用 jq):**
+```bash
+# 安装 jq: apt install jq 或 brew install jq
+curl -s -X POST http://localhost:8000/analyze -F "file=@/path/to/audio.wav" | jq .
 ```
 
 **响应示例:**
