@@ -59,6 +59,7 @@ curl http://localhost:8000/health
 | longitude | float | 否 | -1 | 经度 (-180 到 180), -1 忽略位置筛选 |
 | week | int | 否 | 当前周 | 周数 (1-48) |
 | min_conf | float | 否 | 0.25 | 最小置信度 (0.0-1.0) |
+| top_n | int | 否 | 3 | 返回结果数量 (默认返回前3个不同物种) |
 
 **简化调用 (只需音频文件):**
 ```bash

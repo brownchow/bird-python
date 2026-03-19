@@ -167,7 +167,16 @@ def run_birdnet_analysis(
 
         # 按置信度排序
         detections.sort(key=lambda x: x['confidence'], reverse=True)
-        return detections
+
+        # 去重: 同一物种只保留置信度最高的那条
+        unique_species = {}
+        for d in detections:
+            species = d['scientific_name']
+            if species not in unique_species:
+                unique_species[species] = d
+        
+        # 返回去重后的结果 (已按置信度排序)
+        return list(unique_species.values())
 
     except subprocess.TimeoutExpired:
         print("BirdNET analysis timeout")
@@ -193,7 +202,8 @@ async def analyze_audio(
     latitude: Optional[float] = Form(-1, description="纬度 (-90 到 90), 默认 -1 忽略"),
     longitude: Optional[float] = Form(-1, description="经度 (-180 到 180), 默认 -1 忽略"),
     week: Optional[int] = Form(None, description="周数 (1-48), 默认当前周"),
-    min_conf: Optional[float] = Form(0.25, description="最小置信度 (0.0-1.0), 默认 0.25")
+    min_conf: Optional[float] = Form(0.25, description="最小置信度 (0.0-1.0), 默认 0.25"),
+    top_n: Optional[int] = Form(3, description="返回结果数量, 默认 3")
 ):
     """
     分析音频文件，识别鸟类叫声
@@ -263,6 +273,10 @@ async def analyze_audio(
             week=analysis_week,
             min_conf=conf_val
         )
+
+        # 限制返回结果数量
+        n_val = top_n if top_n is not None and top_n > 0 else 3
+        detections = detections[:n_val]
 
         return AnalysisResponse(
             success=True,
